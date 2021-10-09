@@ -9,8 +9,8 @@
 <script type="text/javascript" id="includedscript" src="boxdrawer.js"></script>
 <script type="text/javascript" id="includedscript" src="lightview.js"></script>
 <script type="text/javascript" id="includedscript" src="project5.js"></script>
-<script type="text/javascript" id="includedscript" src="ejercicio.js"></script>
-<script type="text/javascript" src="objmesh.js"></script>
+<script type="text/javascript" id="includedscript" src="map_drawer.js"></script>
+<script type="text/javascript" src="map_generator.js"></script>
 
 </head>
 <body onresize="WindowResize()">
@@ -28,7 +28,7 @@
             <div class="control"><span id="shininess-label">Intensidad:</span><span id="shininess-value">1</span><input id="shininess-exp" type="range" min="0" max="100" value="50" oninput="SetShininess(this)"/></div>
         </div>
         <div class="control-group">
-            <div class="control">Modelo:<br/><input id="obj" type="file" onchange="LoadObj(this)" accept=".obj"/></div>
+            <button class="control" onclick="RenderMap(this)">Render map</button>
             <div class="control">Textura:<br/><input id="texture" type="file" onchange="LoadTexture(this)" accept="image/*"/></div>
         </div>
         <div class="control-group">
