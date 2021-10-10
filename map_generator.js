@@ -76,6 +76,83 @@ class MapGenerator {
     }
     // printNiceMatrix(this.coords);
   }
+
+  addWallTriangle(x, y, xAxis, right, invert, invertNormals) {
+    // console.log(`x, y: `, x, ' ', y);
+    const shift = right ? 1 : -1;
+
+    //console.log(`x: ${x}. y; ${y}`);
+    let p1 = this.point(x, y);
+    let p2 = this.point(x, y);
+    let p3 = xAxis ? this.point(x + shift, y) : this.point(x, y + shift);
+    if (!invert) {
+      p1.y = -1;
+      p3.y = -1;
+    } else {
+      p2.y = -1;
+    }
+    this.addPoint(p1);
+    this.addPoint(p2);
+    this.addPoint(p3);
+    this.trianglesNumber += 1;
+    
+    if (!invert && right) {
+      this.addNormal(p1, p2, p3, invertNormals);
+    } else if (!invert && !right) {
+      this.addNormal(p1, p2, p3, true && !invertNormals);
+    } else if (invert && !right) {
+      this.addNormal(p1, p2, p3, invertNormals);
+    } else {
+      this.addNormal(p1, p2, p3, true && !invertNormals);
+    }
+  }
+
+  generateWalls() {
+    console.log(`this.vertpos.length: `, this.vertPos.length);
+    for (let y of [0, this.maxIndex]) {
+      for (let x = 0; x < this.maxIndex; x += 1) {
+        let invertNormals = y === this.maxIndex;
+        if (x === 0) {
+          this.addWallTriangle(x, y, true, true, false, invertNormals);
+          continue;
+        }
+        if (x === this.maxIndex) {
+          this.addWallTriangle(x, y, true, false, false, invertNormals);
+          continue;
+        }
+        if (x % 2 === 0) {
+          this.addWallTriangle(x, y, true, false, false, invertNormals);
+          this.addWallTriangle(x, y, true, true, false, invertNormals);
+        } else {
+          this.addWallTriangle(x, y, true, false, true, invertNormals);
+          this.addWallTriangle(x, y, true, true, true, invertNormals);
+        }
+      }
+    }
+
+    for (let x of [0, this.maxIndex]) {
+      for (let y = 0; y < this.maxIndex; y += 1) {
+        let invertNormals = x !== this.maxIndex;
+        if (y === 0) {
+          this.addWallTriangle(x, y, false, true, false, invertNormals);
+          continue;
+        }
+        if (y === this.maxIndex) {
+          this.addWallTriangle(x, y, false, false, false, invertNormals);
+          continue;
+        }
+        if (y % 2 === 0) {
+          this.addWallTriangle(x, y, false, false, false, invertNormals);
+          this.addWallTriangle(x, y, false, true, false, invertNormals);
+        } else {
+          this.addWallTriangle(x, y, false, false, true, invertNormals);
+          this.addWallTriangle(x, y, false, true, true, invertNormals);
+        }
+      }
+    }
+    console.log(`this.vertpos.length: `, this.vertPos.length);
+  }
+
   get(x, y) {
     if (x < this.minIndex || x > this.maxIndex) {
       return null;
@@ -121,9 +198,9 @@ class MapGenerator {
             this.get(x, y - size),
           ];
 
-          
           const maxVal = Math.max(...points);
-          let random = getRandomArbitrary(-1 + maxVal, 1 - maxVal) / randomImpact;
+          let random =
+            getRandomArbitrary(-1 + maxVal, 1 - maxVal) / randomImpact;
           if (
             x === this.minIndex ||
             x === this.maxIndex ||
@@ -160,10 +237,24 @@ class MapGenerator {
     this.vertPos.push(point.z);
   }
 
-  addNormal(vector) {
+  pushNormal(vector) {
     this.normals.push(vector.x);
     this.normals.push(vector.y);
     this.normals.push(vector.z);
+  }
+  addNormal(p1, p2, p3, invert= false) {
+    let A = this.substractV(p2, p1);
+    let B = this.substractV(p3, p1);
+    let normal = this.normal(A, B);
+    if (invert) {
+      normal.x = normal.x * -1;
+      normal.y = normal.y * -1;
+      normal.z = normal.z * -1;
+    }
+
+    this.pushNormal(normal);
+    this.pushNormal(normal);
+    this.pushNormal(normal);
   }
 
   addAdjacentTriangles(x, y) {
@@ -183,12 +274,7 @@ class MapGenerator {
       this.addPoint(p3);
       this.trianglesNumber += 1;
 
-      let A = this.substractV(p2, p1);
-      let B = this.substractV(p3, p1);
-      let normal = this.normal(A, B);
-      this.addNormal(normal);
-      this.addNormal(normal);
-      this.addNormal(normal);
+      this.addNormal(p1, p2, p3);
     }
 
     if (inBounds(x, y + 1) && inBounds(x + 1, y + 1)) {
@@ -200,13 +286,7 @@ class MapGenerator {
       this.addPoint(p2);
       this.addPoint(p3);
       this.trianglesNumber += 1;
-
-      let A = this.substractV(p1, p2);
-      let B = this.substractV(p3, p2);
-      let normal = this.normal(A, B);
-      this.addNormal(normal);
-      this.addNormal(normal);
-      this.addNormal(normal);
+      this.addNormal(p2, p1, p3);
     }
   }
 
@@ -219,6 +299,7 @@ class MapGenerator {
         this.addAdjacentTriangles(i, j);
       }
     }
+    this.generateWalls();
     console.log(`this.vertPos: `, this.vertPos.length);
   }
 }
