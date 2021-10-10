@@ -117,16 +117,16 @@ class MapDrawer {
     this.brightness = gl.getUniformLocation(this.prog, "brightness");
 
     this.swap = gl.getUniformLocation(this.prog, "swap");
-    // this.sampler = gl.getUniformLocation( this.prog, 'textGPU' );
+    this.sampler = gl.getUniformLocation( this.prog, 'textGPU' );
 
     // attributes
     this.pos = gl.getAttribLocation(this.prog, "pos");
     // this.textCoord = gl.getAttribLocation(this.prog, 'textCoord');
-    // this.normal = gl.getAttribLocation( this.prog, 'normal_v' );
+    this.normal = gl.getAttribLocation( this.prog, 'normal_v' );
 
     this.vertexBuffer = gl.createBuffer();
     // this.textCoordsBuffer = gl.createBuffer();
-    // this.normalsBuffer = gl.createBuffer();
+    this.normalsBuffer = gl.createBuffer();
 
     // this.texture = gl.createTexture();
   }
@@ -141,10 +141,13 @@ class MapDrawer {
   // normals [n0,n0,n0,n1,n1,n1,...]. De manera similar, las
   // cooredenadas de textura se componen de a 2 elementos
   // consecutivos y se  asocian a cada vértice en orden.
-  setMesh(vertPos, trianglesNumber) {
+  setMesh(vertPos, normals, trianglesNumber) {
     // console.log(`vertPos: `, vertPos);
     // [COMPLETAR] Actualizar el contenido del buffer de vértices y otros atributos..
     this.numOfPoints = trianglesNumber;
+    console.log(`verPos.length: `, vertPos.length);
+    console.log(`normals.length: `, normals.length);
+
     console.log(`trianglesNumber: `, trianglesNumber);
 
     // current pixel poss
@@ -168,15 +171,15 @@ class MapDrawer {
     // );
     //
     // // normals
-    // gl.bindBuffer(
-    // 	gl.ARRAY_BUFFER,
-    // 	this.normalsBuffer
-    // )
-    // gl.bufferData(
-    // 	gl.ARRAY_BUFFER,
-    // 	new Float32Array(normals),
-    // 	gl.STATIC_DRAW
-    // );
+    gl.bindBuffer(
+    	gl.ARRAY_BUFFER,
+    	this.normalsBuffer
+    )
+    gl.bufferData(
+    	gl.ARRAY_BUFFER,
+    	new Float32Array(normals),
+    	gl.STATIC_DRAW
+    );
   }
 
   // Esta función se llama cada vez que el usuario cambia el estado del checkbox 'Intercambiar Y-Z'
@@ -208,9 +211,9 @@ class MapDrawer {
     // gl.vertexAttribPointer( this.textCoord, 2, gl.FLOAT, false, 0, 0 );
     // gl.enableVertexAttribArray( this.textCoord );
 
-    // gl.bindBuffer( gl.ARRAY_BUFFER, this.normalsBuffer );
-    // gl.vertexAttribPointer( this.normal, 3, gl.FLOAT, false, 0, 0 );
-    // gl.enableVertexAttribArray( this.normal );
+    gl.bindBuffer( gl.ARRAY_BUFFER, this.normalsBuffer );
+    gl.vertexAttribPointer( this.normal, 3, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( this.normal );
 
     gl.drawArrays(gl.TRIANGLES, 0, this.numOfPoints*3);
   }
@@ -253,7 +256,7 @@ class MapDrawer {
 // Vertex Shader
 var meshVS = `
 	attribute vec3 pos;
-
+  attribute vec3 normal_v;
 
 	uniform int swap;
 	uniform vec3 light_v;
@@ -262,8 +265,12 @@ var meshVS = `
 	uniform mat3 mn;
 
   varying float height;
+  varying vec3 normal_vector;
+  varying vec3 light;
 	void main()
 	{ 
+    normal_vector = normalize(mn * normal_v);
+    light = normalize(light_v);
     height = pos.y;
 		gl_Position = mvp * vec4(pos, 1);
 	}
@@ -271,11 +278,19 @@ var meshVS = `
 
 var meshFS = `
 	precision mediump float;
+  uniform sampler2D textGPU;
 
+  varying vec3 normal_vector;
+  varying vec3 light;
   varying float height;
 	void main()
 	{
-    vec3 I = vec3(1,1,1) * height;
-		gl_FragColor = vec4(I, 1);
+    float Ia = 0.2;
+    vec4 kd = vec4(1,1,1,1);
+		vec4 ks = vec4(1,1,1,1);
+		vec4 I = vec4(0.78,0.59,0.49,1);
+    float cos_t = max(dot(light, normal_vector), 0.0);
+    
+    gl_FragColor = I * (kd * cos_t) + Ia * kd;
 	}
 `;

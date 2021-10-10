@@ -277,8 +277,8 @@ function RenderMap( param )
 {
 	console.log(`on render map`);
 	var mesh = new MapGenerator;
-	var bufferPos = mesh.getVertexBuffers();
-	mapDrawer.setMesh(bufferPos, mesh.trianglesNumber);
+	mesh.getVertexBuffers();
+	mapDrawer.setMesh(mesh.vertPos, mesh.normals, mesh.trianglesNumber);
 	DrawScene();
 }
 
