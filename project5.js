@@ -279,6 +279,8 @@ function RenderMap( param )
 	var mesh = new MapGenerator;
 	mesh.getVertexBuffers();
 	mapDrawer.setMesh(mesh.vertPos, mesh.normals, mesh.tex, mesh.trianglesNumber);
+	mesh.generateTexture();
+	mapDrawer.setTexture(mesh.imageTexture);
 	DrawScene();
 }
 

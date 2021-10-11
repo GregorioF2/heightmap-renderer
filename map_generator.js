@@ -96,7 +96,7 @@ class MapGenerator {
     this.addPoint(p2);
     this.addPoint(p3);
     this.trianglesNumber += 1;
-    
+
     if (!invert && right) {
       this.addNormal(p1, p2, p3, invertNormals);
     } else if (!invert && !right) {
@@ -222,9 +222,9 @@ class MapGenerator {
       y: this.coords[x][y],
       z: (y / N) * 2 - 1,
       tex: {
-        x: (x/N),
-        y: (y/N)
-      }
+        x: x / (N-1),
+        y: y / (N-1),
+      },
     };
   }
 
@@ -246,13 +246,14 @@ class MapGenerator {
     this.vertPos.push(point.z);
     this.tex.push(point.tex.x);
     this.tex.push(point.tex.y);
-  }y
+  }
+  y;
   pushNormal(vector) {
     this.normals.push(vector.x);
     this.normals.push(vector.y);
     this.normals.push(vector.z);
   }
-  addNormal(p1, p2, p3, invert= false) {
+  addNormal(p1, p2, p3, invert = false) {
     let A = this.substractV(p2, p1);
     let B = this.substractV(p3, p1);
     let normal = this.normal(A, B);
@@ -311,5 +312,31 @@ class MapGenerator {
     }
     this.generateWalls();
     console.log(`this.vertPos: `, this.vertPos.length);
+  }
+
+  generateTexture() {
+    console.log(`generateTexture`);
+    let arr = new Uint8ClampedArray(this.maxIndex * 4 * this.maxIndex);
+    let total = arr.byteLength;
+    let rowSize = this.maxIndex * 4;
+    for (let x = 0; x < this.maxIndex; x += 1) {
+      for (let y = 0; y < this.maxIndex; y += 1) {
+        let index = rowSize * x + y*4;
+        arr[index + 3] = 255;
+        arr[index] = 0;
+        arr[index + 1] = 0;
+        arr[index + 2] = 0;
+        if (this.coords[x][y] > 0) {
+          arr[index] = 255;
+        } else {
+          arr[index + 2] = 255;
+        }
+      }
+    }
+    console.log(`arr.length: `, arr.byteLength);
+    var canvas = document.getElementById('c');
+    var ctx = canvas.getContext('2d');
+    this.imageTexture = new ImageData(arr, this.maxIndex, this.maxIndex);
+    ctx.putImageData(this.imageTexture, 0, 0);
   }
 }
