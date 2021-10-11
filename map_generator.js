@@ -41,11 +41,12 @@ const printNiceMatrix = (m) => {
   console.log(res);
 };
 
-const N = 513;
+const N = 257;
 class MapGenerator {
   constructor() {
     this.vertPos = [];
     this.normals = [];
+    this.tex = [];
     this.trianglesNumber = 0;
 
     this.coords = getTrivialMatrix(N);
@@ -216,7 +217,15 @@ class MapGenerator {
   }
 
   point(x, y) {
-    return { x: (x / N) * 2 - 1, y: this.coords[x][y], z: (y / N) * 2 - 1 };
+    return {
+      x: (x / N) * 2 - 1,
+      y: this.coords[x][y],
+      z: (y / N) * 2 - 1,
+      tex: {
+        x: (x/N),
+        y: (y/N)
+      }
+    };
   }
 
   substractV(p1, p2) {
@@ -235,8 +244,9 @@ class MapGenerator {
     this.vertPos.push(point.x);
     this.vertPos.push(point.y);
     this.vertPos.push(point.z);
-  }
-
+    this.tex.push(point.tex.x);
+    this.tex.push(point.tex.y);
+  }y
   pushNormal(vector) {
     this.normals.push(vector.x);
     this.normals.push(vector.y);
