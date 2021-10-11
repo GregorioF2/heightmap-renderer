@@ -41,7 +41,7 @@ const printNiceMatrix = (m) => {
   console.log(res);
 };
 
-const N = 257;
+const N = 513;
 class MapGenerator {
   constructor() {
     this.vertPos = [];
@@ -222,8 +222,8 @@ class MapGenerator {
       y: this.coords[x][y],
       z: (y / N) * 2 - 1,
       tex: {
-        x: x / (N-1),
-        y: y / (N-1),
+        x: y / (N-1),
+        y: x / (N-1),
       },
     };
   }
@@ -317,7 +317,6 @@ class MapGenerator {
   generateTexture() {
     console.log(`generateTexture`);
     let arr = new Uint8ClampedArray(this.maxIndex * 4 * this.maxIndex);
-    let total = arr.byteLength;
     let rowSize = this.maxIndex * 4;
     for (let x = 0; x < this.maxIndex; x += 1) {
       for (let y = 0; y < this.maxIndex; y += 1) {
@@ -333,7 +332,6 @@ class MapGenerator {
         }
       }
     }
-    console.log(`arr.length: `, arr.byteLength);
     var canvas = document.getElementById('c');
     var ctx = canvas.getContext('2d');
     this.imageTexture = new ImageData(arr, this.maxIndex, this.maxIndex);
