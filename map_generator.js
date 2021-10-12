@@ -41,8 +41,73 @@ const printNiceMatrix = (m) => {
   console.log(res);
 };
 
+const blenderColors = (c1, c2, factor) => {
+  return {
+    r: c2.r + (c1.r - c2.r) * factor,
+    g: c2.g + (c1.g - c2.g) * factor,
+    b: c2.b + (c1.b - c2.b) * factor,
+  };
+};
+
 const N = 513;
 class MapGenerator {
+  colorScale = {
+    high: { r: 255, g: 0, b: 0 },
+    midHigh: { r: 249, g: 215, b: 28 },
+    mid: { r: 86, g: 125, b: 70 },
+    midLow: { r: 0, g: 0, b: 255 },
+    low: { r: 84, g: 71, b: 61 },
+  };
+
+  getColor(height) {
+    const inRange = (val, range) => {
+      return val >= range[0] && val <= range[1];
+    };
+    const high = { min: 0.8, max: 1 };
+    const midHigh = { min: 0.45, max: 0.55 };
+    const mid = { min: -0.05, max: 0.15 };
+    const midLow = { min: -0.55, max: -0.45 };
+    const low = { min: -1, max: -0.8 };
+
+    if (height > high.min) {
+      return this.colorScale.high;
+    } else if (inRange(height, [midHigh.max, high.min])) {
+      return blenderColors(
+        this.colorScale.high,
+        this.colorScale.midHigh,
+        (height - midHigh.max) / (high.min - midHigh.max)
+      );
+    } else if (inRange(height, [mid.max, midHigh.min])) {
+      return blenderColors(
+        this.colorScale.midHigh,
+        this.colorScale.mid,
+        (height - mid.max) / (midHigh.min - mid.max)
+      );
+    } else if (inRange(height, [midLow.max, mid.min])) {
+      return blenderColors(
+        this.colorScale.mid,
+        this.colorScale.midLow,
+        (height - midLow.max) / (mid.min - midLow.max)
+      );
+    } else if (inRange(height, [low.max, midLow.min])) {
+      return blenderColors(
+        this.colorScale.midLow,
+        this.colorScale.low,
+        (height - low.max) / (midLow.min - low.max)
+      );
+    } else if (inRange(height, [midHigh.min, midHigh.max])) {
+      return this.colorScale.midHigh;
+    } else if (inRange(height, [mid.min, mid.max])) {
+      return this.colorScale.mid;
+    } else if (inRange(height, [midLow.min, midLow.max])) {
+      return this.colorScale.midLow;
+    } else if (inRange(height, [low.min, low.max])) {
+      return this.colorScale.low;
+    } else {
+      return this.colorScale.low;
+    }
+  }
+
   constructor() {
     this.vertPos = [];
     this.normals = [];
@@ -222,8 +287,8 @@ class MapGenerator {
       y: this.coords[x][y],
       z: (y / N) * 2 - 1,
       tex: {
-        x: y / (N-1),
-        y: x / (N-1),
+        x: y / (N - 1),
+        y: x / (N - 1),
       },
     };
   }
@@ -320,20 +385,17 @@ class MapGenerator {
     let rowSize = this.maxIndex * 4;
     for (let x = 0; x < this.maxIndex; x += 1) {
       for (let y = 0; y < this.maxIndex; y += 1) {
-        let index = rowSize * x + y*4;
+        let index = rowSize * x + y * 4;
+        const color = this.getColor(this.coords[x][y]);
+        arr[index] = color.r;
+        arr[index + 1] = color.g;
+        arr[index + 2] = color.b;
         arr[index + 3] = 255;
-        arr[index] = 0;
-        arr[index + 1] = 0;
-        arr[index + 2] = 0;
-        if (this.coords[x][y] > 0) {
-          arr[index] = 255;
-        } else {
-          arr[index + 2] = 255;
-        }
       }
     }
-    var canvas = document.getElementById('c');
-    var ctx = canvas.getContext('2d');
+    var canvas = document.getElementById("c");
+    var ctx = canvas.getContext("2d");
+    ctx.scale(0.5, 0.5);
     this.imageTexture = new ImageData(arr, this.maxIndex, this.maxIndex);
     ctx.putImageData(this.imageTexture, 0, 0);
   }
