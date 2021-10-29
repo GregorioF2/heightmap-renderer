@@ -174,9 +174,9 @@ var meshFS = `
     float Ia = 0.2;
     vec4 kd = texture2D(textGPU, texCoord);
 		vec4 ks = vec4(1,1,1,1);
-		vec4 I = vec4(0.78,0.59,0.49,1);
+		vec4 I = vec4(1,1,1,1);
     float cos_t = max(dot(light, normal_vector), 0.0);
-    
-    gl_FragColor = I * (kd * cos_t) + Ia * kd;
+    vec4 res = I * (kd * cos_t) + Ia * kd;
+    gl_FragColor = vec4(res[0], res[1], res[2], 1);
 	}
 `;

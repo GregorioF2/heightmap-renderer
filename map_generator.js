@@ -49,25 +49,25 @@ const blenderColors = (c1, c2, factor) => {
   };
 };
 
-const N = 513;
+const N = 257;
 class MapGenerator {
   colorScale = {
-    high: { r: 255, g: 0, b: 0 },
-    midHigh: { r: 249, g: 215, b: 28 },
+    high: { r: 255, g: 255, b: 255 },
+    midHigh: { r: 84, g: 71, b: 61 },
     mid: { r: 86, g: 125, b: 70 },
-    midLow: { r: 0, g: 0, b: 255 },
-    low: { r: 84, g: 71, b: 61 },
+    midLow: { r: 236, g: 226, b: 198 },
+    low: { r: 30, g: 30, b: 30 },
   };
 
   getColor(height) {
     const inRange = (val, range) => {
       return val >= range[0] && val <= range[1];
     };
-    const high = { min: 0.8, max: 1 };
-    const midHigh = { min: 0.45, max: 0.55 };
-    const mid = { min: -0.05, max: 0.15 };
-    const midLow = { min: -0.55, max: -0.45 };
-    const low = { min: -1, max: -0.8 };
+    const high = { min: 0.7, max: 1 }; //white
+    const midHigh = { min: 0.35, max: 0.55 }; //brow
+    const mid = { min: 0.17, max: 0.22 }; // green
+    const midLow = { min: 0.0, max: 0.07 }; //yellow
+    const low = { min: -1, max: -0.4 };
 
     if (height > high.min) {
       return this.colorScale.high;
@@ -287,8 +287,8 @@ class MapGenerator {
       y: this.coords[x][y],
       z: (y / N) * 2 - 1,
       tex: {
-        x: y / (N - 1),
-        y: x / (N - 1),
+        x: (y / N),
+        y: (x / N),
       },
     };
   }
@@ -312,7 +312,6 @@ class MapGenerator {
     this.tex.push(point.tex.x);
     this.tex.push(point.tex.y);
   }
-  y;
   pushNormal(vector) {
     this.normals.push(vector.x);
     this.normals.push(vector.y);
@@ -383,8 +382,8 @@ class MapGenerator {
     console.log(`generateTexture`);
     let arr = new Uint8ClampedArray(this.maxIndex * 4 * this.maxIndex);
     let rowSize = this.maxIndex * 4;
-    for (let x = 0; x < this.maxIndex; x += 1) {
-      for (let y = 0; y < this.maxIndex; y += 1) {
+    for (let x = 0; x <= this.maxIndex; x += 1) {
+      for (let y = 0; y <= this.maxIndex; y += 1) {
         let index = rowSize * x + y * 4;
         const color = this.getColor(this.coords[x][y]);
         arr[index] = color.r;

@@ -115,7 +115,7 @@ function DrawScene() {
     mv[10],
   ];
   mapDrawer.draw(mvp, mv, nrmTrans);
-  //waterDrawer.draw(mvp);
+  waterDrawer.draw(mvp);
   if (showBox.checked) {
     boxDrawer.draw(mvp);
   }
