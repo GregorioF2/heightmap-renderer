@@ -68,10 +68,10 @@ class MapGenerator {
     const max = N - 1;
     this.minIndex = 0;
     this.maxIndex = max;
-    this.coords[0][0] = getRandomArbitrary(0.5, 1);
+    this.coords[0][0] = getRandomArbitrary(-1, 1);
     this.coords[0][max] = getRandomArbitrary(-1, 1);
-    this.coords[max][0] = getRandomArbitrary(-1, 0.5);
-    this.coords[max][max] = getRandomArbitrary(-1, -0.5);
+    this.coords[max][0] = getRandomArbitrary(-1, 1);
+    this.coords[max][max] = getRandomArbitrary(-1, 1);
     this.coords[max / 2][max / 2] = avg(
       this.coords[0][0],
       this.coords[0][max],
@@ -248,11 +248,9 @@ class MapGenerator {
       }
     }
     this.generateWalls();
-    console.log(`this.vertPos: `, this.vertPos.length);
   }
 
   generateTexture() {
-    console.log(`generateTexture`);
     let arr = new Uint8ClampedArray(this.maxIndex * 4 * this.maxIndex);
     let rowSize = this.maxIndex * 4;
     for (let x = 0; x <= this.maxIndex; x += 1) {

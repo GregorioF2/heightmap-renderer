@@ -86,6 +86,6 @@ var waterFS = `
 		vec4 I = vec4(1,1,1,1);
     float cos_t = max(dot(light, normal_vector), 0.0);
     vec4 res = I * (kd * cos_t) + Ia * kd;
-    gl_FragColor = vec4(res[0], res[1], res[2], 0.5);
+    gl_FragColor = vec4(res[0], res[1], res[2], 0.7);
 	}
 `;
