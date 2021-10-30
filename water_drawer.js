@@ -26,9 +26,6 @@ class WaterDrawer {
   }
 
   draw(trans, matrixNormal) {
-    gl.enable(gl.BLEND)
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
     gl.useProgram(this.prog);
     gl.uniformMatrix4fv(this.mvp, false, trans);
     gl.uniformMatrix3fv(this.mn, false, matrixNormal);

@@ -11,10 +11,13 @@ class WaterGenerator {
     const max = M - 1;
     this.minIndex = 0;
     this.maxIndex = max;
-    for (let x = 0; x < max; x +=1) {
-        for(let y = 0; y < max; y +=1) {
-            this.coords[x][y] = getRandomArbitrary(-0.005, 0.005);
-        }
+    this.updateText();
+  }
+  updateText() {
+    for (let x = 0; x < this.maxIndex; x +=1) {
+      for(let y = 0; y < this.maxIndex; y +=1) {
+          this.coords[x][y] = getRandomArbitrary(-0.005, 0.005);
+      }
     }
   }
 
@@ -43,7 +46,8 @@ class WaterGenerator {
           this.vertPos,
           this.tex,
           this.normals,
-          M
+          M,
+          2.4
         );
       }
     }

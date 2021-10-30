@@ -69,8 +69,8 @@ class MapGenerator {
     this.minIndex = 0;
     this.maxIndex = max;
     this.coords[0][0] = getRandomArbitrary(0.5, 1);
-    this.coords[0][max] = getRandomArbitrary(-0.5, 0.5);
-    this.coords[max][0] = getRandomArbitrary(-0.5, 0.5);
+    this.coords[0][max] = getRandomArbitrary(-1, 1);
+    this.coords[max][0] = getRandomArbitrary(-1, 0.5);
     this.coords[max][max] = getRandomArbitrary(-1, -0.5);
     this.coords[max / 2][max / 2] = avg(
       this.coords[0][0],

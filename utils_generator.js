@@ -49,11 +49,11 @@ const blenderColors = (c1, c2, factor) => {
   };
 };
 
-const point = (x, y, coords, size) => {
+const point = (x, y, coords, size, range=2) => {
   return {
-    x: (x / size) * 2 - 1,
+    x: (x / size) * range - (range/2),
     y: coords[x][y],
-    z: (y / size) * 2 - 1,
+    z: (y / size) * range - (range/2),
     tex: {
       x: y / size,
       y: x / size,
@@ -106,7 +106,7 @@ const addNormal = (p1, p2, p3, normalsArr, invert = false) => {
   pushNormal(normalObj, normalsArr);
 }
 
-const addAdjacentTriangles = (x, y, minIndex, maxIndex, coords, vertArr, textArr, normalsArr, size) => {
+const addAdjacentTriangles = (x, y, minIndex, maxIndex, coords, vertArr, textArr, normalsArr, size, range = 2) => {
   let trianglesAdded = 0;
   const inBounds = (i, j) =>
     i >= minIndex &&
@@ -115,9 +115,9 @@ const addAdjacentTriangles = (x, y, minIndex, maxIndex, coords, vertArr, textArr
     j <= maxIndex;
 
   if (inBounds(x + 1, y) && inBounds(x + 1, y + 1)) {
-    let p1 = point(x + 1, y, coords, size);
-    let p2 = point(x, y, coords, size);
-    let p3 = point(x + 1, y + 1, coords, size);
+    let p1 = point(x + 1, y, coords, size, range);
+    let p2 = point(x, y, coords, size, range);
+    let p3 = point(x + 1, y + 1, coords, size, range);
 
     addPoint(p1, vertArr, textArr);
     addPoint(p2, vertArr, textArr);
@@ -128,9 +128,9 @@ const addAdjacentTriangles = (x, y, minIndex, maxIndex, coords, vertArr, textArr
   }
 
   if (inBounds(x, y + 1) && inBounds(x + 1, y + 1)) {
-    let p1 = point(x, y + 1, coords, size);
-    let p2 = point(x, y, coords, size);
-    let p3 = point(x + 1, y + 1, coords, size);
+    let p1 = point(x, y + 1, coords, size, range);
+    let p2 = point(x, y, coords, size, range);
+    let p3 = point(x + 1, y + 1, coords, size, range);
 
     addPoint(p1, vertArr, textArr);
     addPoint(p2, vertArr, textArr);

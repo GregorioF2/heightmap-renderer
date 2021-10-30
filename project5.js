@@ -4,6 +4,8 @@ var mapDrawer; // clase para contener el comportamiento de la malla
 var waterDrawer;
 var canvas, gl; // canvas y contexto WebGL
 var perspectiveMatrix; // matriz de perspectiva
+var intervalWater;
+var waterGen;
 
 var rotX = 0,
   rotY = 0,
@@ -26,6 +28,8 @@ function InitWebGL() {
   // Inicializar color clear
   gl.clearColor(0, 0, 0, 0);
   gl.enable(gl.DEPTH_TEST); // habilitar test de profundidad
+  gl.enable(gl.BLEND)
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
   // Inicializar los shaders y buffers para renderizar
   boxDrawer = new BoxDrawer();
@@ -114,11 +118,28 @@ function DrawScene() {
     mv[9],
     mv[10],
   ];
-  mapDrawer.draw(mvp, mv, nrmTrans);
-  waterDrawer.draw(mvp, nrmTrans);
-  if (showBox.checked) {
-    boxDrawer.draw(mvp);
-  }
+  const drawAll = (recreateWater) => {
+    if (valid(waterGen) && recreateWater) {
+      waterGen.updateText();
+      waterGen.getVertexBuffers();
+      waterDrawer.setMesh(
+        waterGen.vertPos,
+        waterGen.normals,
+        waterGen.trianglesNumber
+      );
+    }
+    mapDrawer.draw(mvp, mv, nrmTrans);
+    waterDrawer.draw(mvp, nrmTrans);
+
+    if (showBox.checked) {
+      boxDrawer.draw(mvp);
+    }
+  };
+  drawAll(false);
+  clearInterval(intervalWater);
+  intervalWater = setInterval(() => {
+    drawAll(true);
+  }, 500);
 }
 
 // Función que compila los shaders que se le pasan por parámetro (vertex & fragment shaders)
@@ -279,11 +300,18 @@ function SwapYZ(param) {
 function RenderMap(param) {
   console.log(`on render map`);
   var mesh = new MapGenerator();
-  var waterGen = new WaterGenerator();
-  mesh.getVertexBuffers();
+  waterGen = new WaterGenerator();
+
+  waterGen.updateText();
   waterGen.getVertexBuffers();
+  waterDrawer.setMesh(
+    waterGen.vertPos,
+    waterGen.normals,
+    waterGen.trianglesNumber
+  );
+  mesh.getVertexBuffers();
   mapDrawer.setMesh(mesh.vertPos, mesh.normals, mesh.tex, mesh.trianglesNumber);
-  waterDrawer.setMesh(waterGen.vertPos, waterGen.normals, waterGen.trianglesNumber);
+
   mesh.generateTexture();
   mapDrawer.setTexture(mesh.imageTexture);
   DrawScene();
