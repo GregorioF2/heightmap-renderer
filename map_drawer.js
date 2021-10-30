@@ -147,7 +147,6 @@ var meshVS = `
 	uniform mat4 mv;
 	uniform mat3 mn;
 
-  varying float height;
   varying vec3 normal_vector;
   varying vec3 light;
   varying vec2 texCoord;
@@ -156,7 +155,6 @@ var meshVS = `
     normal_vector = normalize(mn * normal_v);
     light = normalize(light_v);
     texCoord = textCoord;
-    height = pos.y;
 		gl_Position = mvp * vec4(pos, 1);
 	}
 `;
@@ -167,7 +165,6 @@ var meshFS = `
 
   varying vec3 normal_vector;
   varying vec3 light;
-  varying float height;
   varying vec2 texCoord;
 	void main()
 	{

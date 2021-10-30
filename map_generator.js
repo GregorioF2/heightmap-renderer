@@ -1,54 +1,3 @@
-function getRandomArbitrary(min, max) {
-  return Math.random() * (max - min) + min;
-}
-const valid = (val) => val !== null && typeof val !== "undefined";
-
-function getTrivialMatrix(n) {
-  const res = [];
-  for (let i = 0; i < n; i += 1) {
-    res.push([]);
-    for (let j = 0; j < n; j += 1) {
-      res[i].push(null);
-    }
-  }
-  return res;
-}
-
-const avg = (...args) => {
-  let ac = 0;
-  let denominator = 0;
-  for (let n of args) {
-    if (valid(n)) {
-      ac += n;
-      denominator += 1;
-    }
-  }
-  return ac / denominator;
-};
-
-const printNiceMatrix = (m) => {
-  console.log(`\n\n`);
-  let res = "";
-  for (let row of m) {
-    row = row.map((val) => {
-      if (valid(val)) {
-        return val.toFixed(2);
-      }
-      return val;
-    });
-    res += `[${row.join(", ")}]\n`;
-  }
-  console.log(res);
-};
-
-const blenderColors = (c1, c2, factor) => {
-  return {
-    r: c2.r + (c1.r - c2.r) * factor,
-    g: c2.g + (c1.g - c2.g) * factor,
-    b: c2.b + (c1.b - c2.b) * factor,
-  };
-};
-
 const N = 257;
 class MapGenerator {
   colorScale = {
@@ -119,10 +68,10 @@ class MapGenerator {
     const max = N - 1;
     this.minIndex = 0;
     this.maxIndex = max;
-    this.coords[0][0] = getRandomArbitrary(-1, 1);
-    this.coords[0][max] = getRandomArbitrary(-1, 1);
-    this.coords[max][0] = getRandomArbitrary(-1, 1);
-    this.coords[max][max] = getRandomArbitrary(-1, 1);
+    this.coords[0][0] = getRandomArbitrary(0.5, 1);
+    this.coords[0][max] = getRandomArbitrary(-0.5, 0.5);
+    this.coords[max][0] = getRandomArbitrary(-0.5, 0.5);
+    this.coords[max][max] = getRandomArbitrary(-1, -0.5);
     this.coords[max / 2][max / 2] = avg(
       this.coords[0][0],
       this.coords[0][max],
@@ -144,37 +93,35 @@ class MapGenerator {
   }
 
   addWallTriangle(x, y, xAxis, right, invert, invertNormals) {
-    // console.log(`x, y: `, x, ' ', y);
     const shift = right ? 1 : -1;
-
-    //console.log(`x: ${x}. y; ${y}`);
-    let p1 = this.point(x, y);
-    let p2 = this.point(x, y);
-    let p3 = xAxis ? this.point(x + shift, y) : this.point(x, y + shift);
+    let p1 = point(x, y, this.coords, N);
+    let p2 = point(x, y, this.coords, N);
+    let p3 = xAxis
+      ? point(x + shift, y, this.coords, N)
+      : point(x, y + shift, this.coords, N);
     if (!invert) {
       p1.y = -1;
       p3.y = -1;
     } else {
       p2.y = -1;
     }
-    this.addPoint(p1);
-    this.addPoint(p2);
-    this.addPoint(p3);
+    addPoint(p1, this.vertPos, this.tex);
+    addPoint(p2, this.vertPos, this.tex);
+    addPoint(p3, this.vertPos, this.tex);
     this.trianglesNumber += 1;
 
     if (!invert && right) {
-      this.addNormal(p1, p2, p3, invertNormals);
+      addNormal(p1, p2, p3, this.normals, invertNormals);
     } else if (!invert && !right) {
-      this.addNormal(p1, p2, p3, true && !invertNormals);
+      addNormal(p1, p2, p3, this.normals, true && !invertNormals);
     } else if (invert && !right) {
-      this.addNormal(p1, p2, p3, invertNormals);
+      addNormal(p1, p2, p3, this.normals, invertNormals);
     } else {
-      this.addNormal(p1, p2, p3, true && !invertNormals);
+      addNormal(p1, p2, p3, this.normals, true && !invertNormals);
     }
   }
 
   generateWalls() {
-    console.log(`this.vertpos.length: `, this.vertPos.length);
     for (let y of [0, this.maxIndex]) {
       for (let x = 0; x < this.maxIndex; x += 1) {
         let invertNormals = y === this.maxIndex;
@@ -281,97 +228,23 @@ class MapGenerator {
     }
   }
 
-  point(x, y) {
-    return {
-      x: (x / N) * 2 - 1,
-      y: this.coords[x][y],
-      z: (y / N) * 2 - 1,
-      tex: {
-        x: (y / N),
-        y: (x / N),
-      },
-    };
-  }
-
-  substractV(p1, p2) {
-    return { x: p1.x - p2.x, y: p1.y - p2.y, z: p1.z - p2.z };
-  }
-
-  normal(v1, v2) {
-    return {
-      x: v1.y * v2.z - v1.z * v2.y,
-      y: v1.z * v2.x - v1.x * v2.z,
-      z: v1.x * v2.y - v1.y * v2.x,
-    };
-  }
-
-  addPoint(point) {
-    this.vertPos.push(point.x);
-    this.vertPos.push(point.y);
-    this.vertPos.push(point.z);
-    this.tex.push(point.tex.x);
-    this.tex.push(point.tex.y);
-  }
-  pushNormal(vector) {
-    this.normals.push(vector.x);
-    this.normals.push(vector.y);
-    this.normals.push(vector.z);
-  }
-  addNormal(p1, p2, p3, invert = false) {
-    let A = this.substractV(p2, p1);
-    let B = this.substractV(p3, p1);
-    let normal = this.normal(A, B);
-    if (invert) {
-      normal.x = normal.x * -1;
-      normal.y = normal.y * -1;
-      normal.z = normal.z * -1;
-    }
-
-    this.pushNormal(normal);
-    this.pushNormal(normal);
-    this.pushNormal(normal);
-  }
-
-  addAdjacentTriangles(x, y) {
-    const inBounds = (i, j) =>
-      i >= this.minIndex &&
-      j >= this.minIndex &&
-      i <= this.maxIndex &&
-      j <= this.maxIndex;
-
-    if (inBounds(x + 1, y) && inBounds(x + 1, y + 1)) {
-      let p1 = this.point(x + 1, y);
-      let p2 = this.point(x, y);
-      let p3 = this.point(x + 1, y + 1);
-
-      this.addPoint(p1);
-      this.addPoint(p2);
-      this.addPoint(p3);
-      this.trianglesNumber += 1;
-
-      this.addNormal(p1, p2, p3);
-    }
-
-    if (inBounds(x, y + 1) && inBounds(x + 1, y + 1)) {
-      let p1 = this.point(x, y + 1);
-      let p2 = this.point(x, y);
-      let p3 = this.point(x + 1, y + 1);
-
-      this.addPoint(p1);
-      this.addPoint(p2);
-      this.addPoint(p3);
-      this.trianglesNumber += 1;
-      this.addNormal(p2, p1, p3);
-    }
-  }
-
   getVertexBuffers() {
     this.vertPos = [];
     this.normals = [];
     this.trianglesNumber = 0;
     for (var i = 0; i < N; ++i) {
       for (var j = 0; j < N; ++j) {
-        this.addAdjacentTriangles(i, j);
+        this.trianglesNumber += addAdjacentTriangles(
+          i,
+          j,
+          this.minIndex,
+          this.maxIndex,
+          this.coords,
+          this.vertPos,
+          this.tex,
+          this.normals,
+          N
+        );
       }
     }
     this.generateWalls();

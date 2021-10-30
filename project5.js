@@ -115,7 +115,7 @@ function DrawScene() {
     mv[10],
   ];
   mapDrawer.draw(mvp, mv, nrmTrans);
-  waterDrawer.draw(mvp);
+  waterDrawer.draw(mvp, nrmTrans);
   if (showBox.checked) {
     boxDrawer.draw(mvp);
   }
@@ -279,8 +279,11 @@ function SwapYZ(param) {
 function RenderMap(param) {
   console.log(`on render map`);
   var mesh = new MapGenerator();
+  var waterGen = new WaterGenerator();
   mesh.getVertexBuffers();
+  waterGen.getVertexBuffers();
   mapDrawer.setMesh(mesh.vertPos, mesh.normals, mesh.tex, mesh.trianglesNumber);
+  waterDrawer.setMesh(waterGen.vertPos, waterGen.normals, waterGen.trianglesNumber);
   mesh.generateTexture();
   mapDrawer.setTexture(mesh.imageTexture);
   DrawScene();
@@ -310,5 +313,6 @@ function SetShininess(param) {
     s < 10 ? 2 : 0
   );
   mapDrawer.setShininess(s);
+  // waterDrawer.setShininess(s);
   DrawScene();
 }

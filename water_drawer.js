@@ -3,68 +3,73 @@ class WaterDrawer {
   constructor() {
     this.prog = InitShaderProgram(waterVS, waterFS);
     this.mvp = gl.getUniformLocation(this.prog, "mvp");
+    this.mn = gl.getUniformLocation(this.prog, "mn");
     this.vertPos = gl.getAttribLocation(this.prog, "pos");
+    this.lightVec = gl.getUniformLocation(this.prog, "light_v");
+    this.brightness = gl.getUniformLocation(this.prog, "brightness");
+    this.normal = gl.getAttribLocation(this.prog, "normal_v");
     this.vertbuffer = gl.createBuffer();
-    this.pos = [
-      -1.1, -0.25, -1.1,
-      -1.1, -0.25, 1.1,
-      1.1, -0.25, 1.1,
-      1.1, -0.25, -1.1,
-
-      -1.1, -1.1, -1.1,
-      -1.1, -1.1, 1.1,
-      1.1, -1.1, 1.1,
-      1.1, -1.1, -1.1,
-    ];
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertbuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.pos), gl.STATIC_DRAW);
-
-    this.linebuffer = gl.createBuffer();
-    this.lines = [
-      0,1,2, 2,3,0,
-
-      4,0,3, 3,4,7,
-
-      4,1,5, 4,1,0,
-
-      5,2,6, 5,1,2,
-
-      3,2,6, 3,7,6,
-
-      4,5,6, 4,6,7
-    ];
-    gl.enable(gl.BLEND)
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.linebuffer);
-    gl.bufferData(
-      gl.ELEMENT_ARRAY_BUFFER,
-      new Uint8Array(this.lines),
-      gl.STATIC_DRAW
-    );
+    this.normalsBuffer = gl.createBuffer();
   }
 
-  draw(trans) {
+  setMesh(vertPos, normals, trianglesNumber) {
+    this.numOfPoints = trianglesNumber * 3;
+
+    // current pixel poss
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertbuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertPos), gl.STATIC_DRAW);
+
+  
+    // // normals
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.normalsBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+  }
+
+  draw(trans, matrixNormal) {
+    gl.enable(gl.BLEND)
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
     gl.useProgram(this.prog);
     gl.uniformMatrix4fv(this.mvp, false, trans);
+    gl.uniformMatrix3fv(this.mn, false, matrixNormal);
+
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertbuffer);
     gl.vertexAttribPointer(this.vertPos, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(this.vertPos);
 
-    gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, this.linebuffer );
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.normalsBuffer);
+    gl.vertexAttribPointer(this.normal, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(this.normal);
 
-		// 5. Dibujamos
-		gl.drawElements( gl.TRIANGLES, this.lines.length, gl.UNSIGNED_BYTE, 0 );
-   //  gl.drawArrays(gl.TRIANGLES, 0, this.pos.length / 3);
+    gl.drawArrays(gl.TRIANGLES, 0, this.numOfPoints);
+  }
+
+  setLightDir(x, y, z) {
+    gl.useProgram(this.prog);
+    gl.uniform3fv(this.lightVec, [x, y, z]);
+  }
+  setShininess(brightness) {
+    gl.useProgram(this.prog);
+    gl.uniform1f(this.brightness, brightness);
   }
 }
 
 // Vertex shader
 var waterVS = `
 	attribute vec3 pos;
-	uniform mat4 mvp;
-	void main()
+  attribute vec3 normal_v;
+	
+  uniform mat4 mvp;
+  uniform mat3 mn;
+  uniform vec3 light_v;
+	
+  varying vec3 normal_vector;
+  varying vec3 light;
+  void main()
 	{
+    normal_vector = normalize(mn * normal_v);
+    light = normalize(light_v);
 		gl_Position = mvp * vec4(pos,1);
 	}
 `;
@@ -72,8 +77,18 @@ var waterVS = `
 // Fragment shader
 var waterFS = `
 	precision mediump float;
-	void main()
+  
+  varying vec3 light;
+  varying vec3 normal_vector;
+	
+  void main()
 	{
-		gl_FragColor = vec4(38.0/255.0, 102.0/255.0, 145.0/255.0, 0.5);
+    float Ia = 0.2;
+    vec4 kd = vec4(38.0/255.0, 102.0/255.0, 145.0/255.0, 0.5);
+		vec4 ks = vec4(1,1,1,1);
+		vec4 I = vec4(1,1,1,1);
+    float cos_t = max(dot(light, normal_vector), 0.0);
+    vec4 res = I * (kd * cos_t) + Ia * kd;
+    gl_FragColor = vec4(res[0], res[1], res[2], 0.5);
 	}
 `;
