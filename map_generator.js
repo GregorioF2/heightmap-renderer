@@ -1,4 +1,4 @@
-const N = 257;
+var N = 257;
 class MapGenerator {
   colorScale = {
     high: { r: 255, g: 255, b: 255 },

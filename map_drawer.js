@@ -119,11 +119,6 @@ class MapDrawer {
     gl.generateMipmap(gl.TEXTURE_2D);
   }
 
-  showTexture(show) {
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);
-  }
-
   setLightDir(x, y, z) {
     gl.useProgram(this.prog);
     gl.uniform3fv(this.lightVec, [x, y, z]);

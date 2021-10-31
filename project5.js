@@ -119,7 +119,7 @@ function DrawScene() {
     mv[10],
   ];
   const drawAll = (recreateWater) => {
-    if (valid(waterGen) && recreateWater) {
+    if (valid(waterGen) && recreateWater && showWater.checked) {
       waterGen.updateText();
       waterGen.getVertexBuffers();
       waterDrawer.setMesh(
@@ -129,8 +129,9 @@ function DrawScene() {
       );
     }
     mapDrawer.draw(mvp, mv, nrmTrans);
-    waterDrawer.draw(mvp, nrmTrans);
-
+    if (showWater.checked) {
+      waterDrawer.draw(mvp, nrmTrans);
+    }
     if (showBox.checked) {
       boxDrawer.draw(mvp);
     }
@@ -209,7 +210,9 @@ var showBox; // boleano para determinar si se debe o no mostrar la caja
 // Al cargar la página
 window.onload = function () {
   showBox = document.getElementById("show-box");
+  showWater = document.getElementById("show-water");
   InitWebGL();
+  $('#pixel-selector').dropdown('set selected', 256);
 
   // Componente para la luz
   lightView = new LightView();
@@ -251,7 +254,7 @@ window.onload = function () {
     canvas.onmousemove = null;
   };
 
-  SetShininess(document.getElementById("shininess-exp"));
+  SetShininess(50);
 
   // Dibujo la escena
   DrawScene();
@@ -261,6 +264,13 @@ window.onload = function () {
 function WindowResize() {
   UpdateCanvasSize();
   DrawScene();
+}
+
+function changeNumberOfPixels(params) {
+  console.log(`params: `, params);
+  console.log(`value: `, params.value);
+
+  N = parseInt(params.value) + 1;
 }
 
 // Control de la calesita de rotación
@@ -284,11 +294,6 @@ function AutoRotate(param) {
   }
 }
 
-// Control de textura visible
-function ShowTexture(param) {
-  mapDrawer.showTexture(param.checked);
-  DrawScene();
-}
 
 // Control de intercambiar y-z
 function SwapYZ(param) {
@@ -334,12 +339,9 @@ function LoadTexture(param) {
 }
 
 // Setear Intensidad
-function SetShininess(param) {
-  var exp = param.value;
+function SetShininess(value) {
+  var exp = value;
   var s = Math.pow(10, exp / 25);
-  document.getElementById("shininess-value").innerText = s.toFixed(
-    s < 10 ? 2 : 0
-  );
   mapDrawer.setShininess(s);
   // waterDrawer.setShininess(s);
   DrawScene();

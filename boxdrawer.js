@@ -17,14 +17,14 @@ class BoxDrawer
 
 		// 8 caras del cubo unitario
 		var pos = [
-			-1, -1, -1,
-			-1, -1,  1,
-			-1,  1, -1,
-			-1,  1,  1,
-			 1, -1, -1,
-			 1, -1,  1,
-			 1,  1, -1,
-			 1,  1,  1 ];
+			-1.2, -1, -1.2,
+			-1.2, -1,  1.2,
+			-1.2,  1, -1.2,
+			-1.2,  1,  1.2,
+			 1.2, -1, -1.2,
+			 1.2, -1,  1.2,
+			 1.2,  1, -1.2,
+			 1.2,  1,  1.2 ];
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertbuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pos), gl.STATIC_DRAW);
 

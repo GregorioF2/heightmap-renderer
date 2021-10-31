@@ -7,7 +7,7 @@ class WaterGenerator {
     this.tex = [];
     this.trianglesNumber = 0;
 
-    this.coords = getTrivialMatrix(N);
+    this.coords = getTrivialMatrix(M);
     // seteo las primeras 4 esquinas
     const max = M - 1;
     this.minIndex = 0;
@@ -15,13 +15,12 @@ class WaterGenerator {
     this.updateText();
   }
   updateText() {
-    for (let x = 0; x < this.maxIndex; x +=1) {
-      for(let y = 0; y < this.maxIndex; y +=1) {
-          this.coords[x][y] = getRandomArbitrary(-0.005, 0.005);
+    for (let x = 0; x < this.maxIndex; x += 1) {
+      for (let y = 0; y < this.maxIndex; y += 1) {
+        this.coords[x][y] = getRandomArbitrary(-0.005, 0.005);
       }
     }
   }
-
 
   addWallTriangle(x, y, xAxis, right, invert, invertNormals) {
     const shift = right ? 1 : -1;
