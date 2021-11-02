@@ -6,6 +6,7 @@ var canvas, gl; // canvas y contexto WebGL
 var perspectiveMatrix; // matriz de perspectiva
 var intervalWater;
 var waterGen;
+var mapGen;
 
 var rotX = 0,
   rotY = 0,
@@ -223,6 +224,9 @@ function ResetConf(){
   }
 
   $('#pixel-selector').dropdown('set selected', 256);
+  mapGen.generateTexture();
+  mapDrawer.setTexture(mapGen.imageTexture);
+  mapDrawer.setMesh(mapGen.vertPos, mapGen.normals, mapGen.tex, mapGen.trianglesNumber);
 }
 
 // ======== Funciones para el control de la interfaz ========
@@ -296,7 +300,7 @@ function WindowResize() {
   DrawScene();
 }
 
-function changeNumberOfPixels(params) {
+function changeNumberOf226Pixels(params) {
   N = parseInt(params.value) + 1;
 }
 function changeColor(params) {
@@ -305,6 +309,10 @@ function changeColor(params) {
   colorScale[height][color] = Math.max(0, Math.min(value, 255));
   let {r, g, b} = colorScale[height]
   $(`#${height}-terrain-color`).css('background-color', `rgb(${r},${g},${b})`);
+  mapGen.generateTexture();
+  mapDrawer.setTexture(mapGen.imageTexture);
+  mapDrawer.setMesh(mapGen.vertPos, mapGen.normals, mapGen.tex, mapGen.trianglesNumber);
+  //DrawScene();
 }
 // Control de la calesita de rotación
 var timer;
@@ -336,8 +344,7 @@ function SwapYZ(param) {
 
 // Cargar archivo obj
 function RenderMap(param) {
-  console.log(`on render map`);
-  var mesh = new MapGenerator();
+  mapGen = new MapGenerator();
   waterGen = new WaterGenerator();
 
   waterGen.updateText();
@@ -347,11 +354,11 @@ function RenderMap(param) {
     waterGen.normals,
     waterGen.trianglesNumber
   );
-  mesh.getVertexBuffers();
-  mapDrawer.setMesh(mesh.vertPos, mesh.normals, mesh.tex, mesh.trianglesNumber);
+  mapGen.getVertexBuffers();
+  mapDrawer.setMesh(mapGen.vertPos, mapGen.normals, mapGen.tex, mapGen.trianglesNumber);
 
-  mesh.generateTexture();
-  mapDrawer.setTexture(mesh.imageTexture);
+  mapGen.generateTexture();
+  mapDrawer.setTexture(mapGen.imageTexture);
   DrawScene();
 }
 
