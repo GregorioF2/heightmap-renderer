@@ -203,6 +203,28 @@ function MatrixMult(A, B) {
   return C;
 }
 
+function ResetConf(){
+  colorScale = {
+    high: { r: 255, g: 255, b: 255 },
+    midHigh: { r: 84, g: 71, b: 61 },
+    mid: { r: 86, g: 125, b: 70 },
+    midLow: { r: 236, g: 226, b: 198 },
+    low: { r: 30, g: 30, b: 30 },
+  };
+  N= 257
+  $('#pixel-selector').dropdown('set selected', 256);
+  for (let el of $('.color-picker input')) {
+    let [height, color] = el.name.split('-');
+    el.value = colorScale[height][color]
+  }
+  for (let height of Object.keys(colorScale)) {
+    let {r, g, b} = colorScale[height]
+    $(`#${height}-terrain-color`).css('background-color', `rgb(${r},${g},${b})`);
+  }
+
+  $('#pixel-selector').dropdown('set selected', 256);
+}
+
 // ======== Funciones para el control de la interfaz ========
 
 var showBox; // boleano para determinar si se debe o no mostrar la caja
@@ -213,6 +235,14 @@ window.onload = function () {
   showWater = document.getElementById("show-water");
   InitWebGL();
   $('#pixel-selector').dropdown('set selected', 256);
+  for (let el of $('.color-picker input')) {
+    let [height, color] = el.name.split('-');
+    el.value = colorScale[height][color]
+  }
+  for (let height of Object.keys(colorScale)) {
+    let {r, g, b} = colorScale[height]
+    $(`#${height}-terrain-color`).css('background-color', `rgb(${r},${g},${b})`);
+  }
 
   // Componente para la luz
   lightView = new LightView();
@@ -267,12 +297,15 @@ function WindowResize() {
 }
 
 function changeNumberOfPixels(params) {
-  console.log(`params: `, params);
-  console.log(`value: `, params.value);
-
   N = parseInt(params.value) + 1;
 }
-
+function changeColor(params) {
+  let value = params.value;
+  let [height, color] = params.name.split('-');
+  colorScale[height][color] = Math.max(0, Math.min(value, 255));
+  let {r, g, b} = colorScale[height]
+  $(`#${height}-terrain-color`).css('background-color', `rgb(${r},${g},${b})`);
+}
 // Control de la calesita de rotación
 var timer;
 function AutoRotate(param) {

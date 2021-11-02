@@ -1,13 +1,12 @@
 var N = 257;
+let colorScale = {
+  high: { r: 255, g: 255, b: 255 },
+  midHigh: { r: 84, g: 71, b: 61 },
+  mid: { r: 86, g: 125, b: 70 },
+  midLow: { r: 236, g: 226, b: 198 },
+  low: { r: 30, g: 30, b: 30 },
+};
 class MapGenerator {
-  colorScale = {
-    high: { r: 255, g: 255, b: 255 },
-    midHigh: { r: 84, g: 71, b: 61 },
-    mid: { r: 86, g: 125, b: 70 },
-    midLow: { r: 236, g: 226, b: 198 },
-    low: { r: 30, g: 30, b: 30 },
-  };
-
   getColor(height) {
     const inRange = (val, range) => {
       return val >= range[0] && val <= range[1];
@@ -19,41 +18,41 @@ class MapGenerator {
     const low = { min: -1, max: -0.4 };
 
     if (height > high.min) {
-      return this.colorScale.high;
+      return colorScale.high;
     } else if (inRange(height, [midHigh.max, high.min])) {
       return blenderColors(
-        this.colorScale.high,
-        this.colorScale.midHigh,
+        colorScale.high,
+        colorScale.midHigh,
         (height - midHigh.max) / (high.min - midHigh.max)
       );
     } else if (inRange(height, [mid.max, midHigh.min])) {
       return blenderColors(
-        this.colorScale.midHigh,
-        this.colorScale.mid,
+        colorScale.midHigh,
+        colorScale.mid,
         (height - mid.max) / (midHigh.min - mid.max)
       );
     } else if (inRange(height, [midLow.max, mid.min])) {
       return blenderColors(
-        this.colorScale.mid,
-        this.colorScale.midLow,
+        colorScale.mid,
+        colorScale.midLow,
         (height - midLow.max) / (mid.min - midLow.max)
       );
     } else if (inRange(height, [low.max, midLow.min])) {
       return blenderColors(
-        this.colorScale.midLow,
-        this.colorScale.low,
+        colorScale.midLow,
+        colorScale.low,
         (height - low.max) / (midLow.min - low.max)
       );
     } else if (inRange(height, [midHigh.min, midHigh.max])) {
-      return this.colorScale.midHigh;
+      return colorScale.midHigh;
     } else if (inRange(height, [mid.min, mid.max])) {
-      return this.colorScale.mid;
+      return colorScale.mid;
     } else if (inRange(height, [midLow.min, midLow.max])) {
-      return this.colorScale.midLow;
+      return colorScale.midLow;
     } else if (inRange(height, [low.min, low.max])) {
-      return this.colorScale.low;
+      return colorScale.low;
     } else {
-      return this.colorScale.low;
+      return colorScale.low;
     }
   }
 

@@ -37,7 +37,9 @@
             <div class="control"><input id="rotation-speed" type="range" min="1" max="100" value="50" disabled/></div>
         </div>
         <div class="control-group">
-            <div class="control ui header white">Terrain pixels:</div>    
+            <button class="ui secondary button action-button" onclick="RenderMap(this)">Renderizar map</button>
+            <button class="ui secondary button action-button" onclick="ResetConf(this)">Resetear configuracion</button>
+            <div class="control ui header white">Pixeles del terreno:</div>    
 
             <select id="pixel-selector" class="ui fluid selection dropdown" value="256" onchange="changeNumberOfPixels(this)">
                 <option value="">Pixels selector</option>
@@ -46,7 +48,46 @@
                 <option value="256">256</option>
                 <option value="512">512</option>
               </select>
-            <button class="ui secondary button action-button" onclick="RenderMap(this)">Render map</button>
+              <div class="control ui header white">Color terreno alto:</div>
+              <div class="ui input color-picker">
+                <input type="number" name="high-r" oninput="changeColor(this)" placeholder="R">
+                <input type="number" name="high-g" oninput="changeColor(this)" placeholder="G">
+                <input type="number" name="high-b" oninput="changeColor(this)" placeholder="B">
+              </div>
+              <div id="high-terrain-color" class="color-example"> </div>
+
+              <div class="control ui header white">Color terreno mediano-alto:</div>
+              <div class="ui input color-picker">
+                <input type="number" name="midHigh-r" oninput="changeColor(this)" placeholder="R">
+                <input type="number" name="midHigh-g" oninput="changeColor(this)" placeholder="G">
+                <input type="number" name="midHigh-b" oninput="changeColor(this)" placeholder="B">
+              </div>
+              <div id="midHigh-terrain-color" class="color-example"> </div>
+
+              <div class="control ui header white">Color terreno mediano:</div>
+              <div class="ui input color-picker">
+                <input type="number" name="mid-r" oninput="changeColor(this)" placeholder="R">
+                <input type="number" name="mid-g" oninput="changeColor(this)" placeholder="G">
+                <input type="number" name="mid-b" oninput="changeColor(this)" placeholder="B">
+              </div>
+              <div id="mid-terrain-color" class="color-example"> </div>
+
+              <div class="control ui header white">Color terreno mediano-bajo:</div>
+              <div class="ui input color-picker">
+                <input type="number" name="midLow-r" oninput="changeColor(this)" placeholder="R">
+                <input type="number" name="midLow-g" oninput="changeColor(this)" placeholder="G">
+                <input type="number" name="midLow-b" oninput="changeColor(this)" placeholder="B">
+              </div>
+              <div id="midLow-terrain-color" class="color-example"> </div>
+
+              <div class="control ui header white">Color terreno bajo:</div>
+              <div class="ui input color-picker">
+                <input type="number" name="low-r" oninput="changeColor(this)" placeholder="R">
+                <input type="number" name="low-g" oninput="changeColor(this)" placeholder="G">
+                <input type="number" name="low-b" oninput="changeColor(this)" placeholder="B">
+              </div>
+              <div id="low-terrain-color" class="color-example"> </div>
+            
             <div class="control ui header white">Textura:</div>
         </div>
         <div class="control-group">
